@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{{ therapists | json_script:"therapists" }}
+
+<div id='app'>
+    <h1>[[ title ]]</h1>
+    <ul v-for="therapist in therapists">
+        <li>[[ therapist.name ]]</li>
+        <li><img v-bind:src='therapist.photo' height='200'></li>
+        <li>
+            <ul v-for='method in therapist.methods'>
+                <li>[[ method.title ]]</li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<script>
+    let therapists = JSON.parse(document.getElementById('therapists').textContent);
+
+    let app = new Vue({
+        el: '#app',
+        delimiters: ['[[', ']]'],
+        data: {
+            title: 'Психотерапевты',
+            therapists,
+        },
+    });
+</script>
+{% endblock %}

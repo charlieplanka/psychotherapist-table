@@ -1,3 +1,14 @@
-from django.shortcuts import render
+from .models import Therapist
+from .serializers import TherapistSerializer
+from django.views.generic.list import ListView
 
-# Create your views here.
+
+class TherapistListView(ListView):
+    model = Therapist
+
+    def get_context_data(self):
+        therapists = Therapist.objects.all()        
+        context = {
+            'therapists': TherapistSerializer(therapists, many=True).data
+        }
+        return context
