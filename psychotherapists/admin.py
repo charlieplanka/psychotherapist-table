@@ -1,3 +1,10 @@
 from django.contrib import admin
+from .models import Therapist, Method
 
-# Register your models here.
+@admin.register(Therapist)
+class TherapistAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(Method)
+class MethodAdmin(admin.ModelAdmin):
+    pass
