@@ -22,6 +22,7 @@ class Therapist(Base):
     id = sa.Column(sa.Integer, primary_key=True)
     name = sa.Column(sa.Text)
     photo = sa.Column(sa.Text)
+    photo_url = sa.Column(sa.Text) # убрать поле
     methods = relationship('Method',
                     secondary=association_table,
                     backref='therapists')
@@ -37,15 +38,34 @@ def get_airtable_data(url, api_key):
     headers = {'Authorization': 'Bearer ' + api_key}
     return requests.get(url,  headers=headers)
 
-table = get_airtable_data(AIRTABLE_URL, API_KEY)
-print(table.json())
 
-engine = create_engine(DB_PATH)
-Sessions = sessionmaker(engine)
-session = Sessions()
+def connect_to_db(DB_PATH):
+    engine = sa.create_engine(DB_PATH)
+    Session = sessionmaker(engine)
+    return Session()
+
+
+table = get_airtable_data(AIRTABLE_URL, API_KEY).json()
+session = connect_to_db(DB_PATH)
 
 therapists = session.query(Therapist).all()
-for therapist in therapists:
-    print(therapist.name)
-    for method in therapist.methods:
-        print(method.title)
+for therapist in table['records']:
+    fields = therapist['fields']
+    name, photo_url, methods = fields['Имя'], fields['Фотография'][0]['url'], fields['Методы']
+
+    photo = requests.get(photo_url)
+    photo_path = f'therapists\\{therapist["id"]}.jpg'
+    with open(f'media\\{photo_path}', 'wb') as f:
+        f.write(photo.content)
+
+    therapist = Therapist(name=name, photo=photo_path)
+    for method in methods:
+        # убрать дублирующиеся методы
+        method = Method(title=method)
+        therapist.methods.append(method)
+    session.add(therapist)
+session.commit()
+
+# print(therapist.name, therapist.photo_url) 
+# for method in therapist.methods:
+#     print(method.title)
