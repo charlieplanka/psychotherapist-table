@@ -11,7 +11,7 @@
 <div id="app">
     <div class="d-flex align-items-center flex-column mt-4">
         <h3>[[ title ]]</h3>
-        <div v-for="therapist in therapists" :key="therapist.id" class="d-flex my-3 person">
+        <div v-for="therapist in therapists" :key="therapist.id" class="d-flex my-3 person flex-wrap">
             <img v-bind:src="therapist.photo" height="380" width="230" class="mx-3">
             <div class="data">
                 <p class="name">[[ therapist.name ]]</p>
