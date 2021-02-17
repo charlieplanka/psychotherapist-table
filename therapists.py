@@ -1,7 +1,5 @@
-import requests
-import os
-import datetime
-import json
+import requests, os, datetime, json, argparse
+from requests.exceptions import HTTPError
 from dateutil.parser import parse
 import sqlalchemy as sa
 from sqlalchemy import create_engine
@@ -55,12 +53,38 @@ def connect_to_db(DB_PATH):
 
 def get_airtable_data(url, api_key):
     headers = {'Authorization': 'Bearer ' + api_key}
-    return requests.get(url,  headers=headers)
+    r = requests.get(url,  headers=headers)
+    r.raise_for_status()
+    return r        
 
 
 def save_raw_airtable_data(session, table):
     airtable_obj = AirtableRaw(timestamp=datetime.datetime.now(), data=json.dumps(table, ensure_ascii=False))
     session.add(airtable_obj)
+
+
+def remove_deleted_rows_from_db(session, table):
+    record_ids = [record['id'] for record in table['records']]
+    rows_to_delete = session.query(Therapist).filter(Therapist.airtable_id.notin_(record_ids)).all()
+    for row in rows_to_delete:
+        session.delete(row)
+        os.remove(f'{MEDIA_PATH}\\{row.photo}')
+
+
+def update_therapist_db_data(session, table):
+    remove_deleted_rows_from_db(session, table)
+
+    for therapist in table['records']:
+        therapist_id = get_airtable_record_id(therapist)
+        modified = get_airtable_modified(therapist)
+        therapist_obj = get_therapist_from_db(session, therapist_id)
+
+        if not therapist_obj:
+            create_therapist_object(session, therapist)
+
+        elif therapist_obj.airtable_modified != modified:
+            session.delete(therapist_obj)
+            create_therapist_object(session, therapist)
 
 
 def get_airtable_record_data(record):
@@ -89,7 +113,7 @@ def save_photo_to_media(url, person_id):
     return photo_path
 
 
-def add_method(method, therapist):
+def add_method(session, method, therapist):
     method_object = session.query(Method).filter(Method.title == method).first()
     if not method_object:
         method_object = Method(title=method)
@@ -100,39 +124,47 @@ def get_therapist_from_db(session, id):
     return session.query(Therapist).filter(Therapist.airtable_id == id).first()
 
 
-def remove_deleted_rows_from_db(table):
-    record_ids = [record['id'] for record in table['records']]
-    rows_to_delete = session.query(Therapist).filter(Therapist.airtable_id.notin_(record_ids)).all()
-    for row in rows_to_delete:
-        session.delete(row)
-        os.remove(f'{MEDIA_PATH}\\{row.photo}')
-
-
-def create_therapist_object(therapist):
+def create_therapist_object(session, therapist):
     therapist_id, name, photo_url, methods, modified = get_airtable_record_data(therapist)
     photo_path = save_photo_to_media(photo_url, therapist_id)
     therapist_obj = Therapist(name=name, photo=photo_path, airtable_id=therapist_id, airtable_modified=modified)
     for method in methods:
-        add_method(method, therapist_obj)
+        add_method(session, method, therapist_obj)
     session.add(therapist_obj)
 
 
-table = get_airtable_data(AIRTABLE_URL, API_KEY).json()
-session = connect_to_db(DB_PATH)
+def parse_args():
+    parser = argparse.ArgumentParser(description='Synchronize DB data with Airtable data.')
+    parser.add_argument('-k', '--key', type=str, default=API_KEY, help='Airtable API key')
+    parser.add_argument('-u', '--url', type=str, default=AIRTABLE_URL, help='API URL of the Airtable table')
+    return parser.parse_args()
 
-save_raw_airtable_data(session, table)
-remove_deleted_rows_from_db(table)
 
-for therapist in table['records']:
-    therapist_id = get_airtable_record_id(therapist)
-    modified = get_airtable_modified(therapist)
-    therapist_obj = get_therapist_from_db(session, therapist_id)
+def main():
+    args = parse_args()
+    API_KEY = args.key
+    AIRTABLE_URL = args.url
 
-    if not therapist_obj:
-        create_therapist_object(therapist)
+    try:
+        print('Retreiving data from Airtable..')
+        table = get_airtable_data(AIRTABLE_URL, API_KEY).json()
+    except HTTPError as err:
+        print(f'Oops! HTTP error occurred: {err}')
+        return
+    else:
+        print('Success')
     
-    elif therapist_obj.airtable_modified != modified:
-        session.delete(therapist_obj)
-        create_therapist_object(therapist)
+    session = connect_to_db(DB_PATH)
 
-session.commit()
+    print('Saving raw data..')
+    save_raw_airtable_data(session, table)
+    print('Success')
+
+    print('Updating DB..')
+    update_therapist_db_data(session, table)
+    session.commit()
+    print('Success')
+
+
+if __name__ == "__main__":
+    main()
