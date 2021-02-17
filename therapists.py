@@ -45,6 +45,10 @@ class AirtableRaw(Base):
     data = sa.Column(sa.Text)
 
 
+class EmptyRowError(Exception):
+    pass
+
+
 def connect_to_db(DB_PATH):
     engine = sa.create_engine(DB_PATH)
     Session = sessionmaker(engine)
@@ -73,23 +77,27 @@ def remove_deleted_rows_from_db(session, table):
 
 def update_therapist_db_data(session, table):
     remove_deleted_rows_from_db(session, table)
-
+    
     for therapist in table['records']:
-        therapist_id = get_airtable_record_id(therapist)
-        modified = get_airtable_modified(therapist)
-        therapist_obj = get_therapist_from_db(session, therapist_id)
+        try:
+            therapist_id = get_airtable_record_id(therapist)
+            modified = get_airtable_modified(therapist)
+            therapist_obj = get_therapist_from_db(session, therapist_id)
 
-        if not therapist_obj:
-            create_therapist_object(session, therapist)
+            if not therapist_obj:
+                create_therapist_object(session, therapist)
 
-        elif therapist_obj.airtable_modified != modified:
-            session.delete(therapist_obj)
-            create_therapist_object(session, therapist)
+            elif therapist_obj.airtable_modified != modified:
+                session.delete(therapist_obj)
+                create_therapist_object(session, therapist)
+        except EmptyRowError:
+            continue
 
 
 def get_airtable_record_data(record):
     fields = record['fields']
-    # TODO: handle empty row without fields (exception?)
+    if not fields:
+        raise EmptyRowError()
     name, photo_url, methods = fields['Имя'], fields['Фотография'][0]['url'], fields['Методы']
     record_id = get_airtable_record_id(record)
     modified = get_airtable_modified(record)
@@ -101,7 +109,10 @@ def get_airtable_record_id(record):
 
 
 def get_airtable_modified(record):
-    modified = record['fields']['Изменено']
+    fields = record['fields']
+    if not fields:
+        raise EmptyRowError()
+    modified = fields['Изменено']
     return parse(modified)
 
 
