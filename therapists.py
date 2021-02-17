@@ -60,9 +60,10 @@ for therapist in table['records']:
 
     therapist = Therapist(name=name, photo=photo_path)
     for method in methods:
-        # убрать дублирующиеся методы
-        method = Method(title=method)
-        therapist.methods.append(method)
+        method_object = session.query(Method).filter(Method.title == method).first()
+        if not method_object:
+            method_object = Method(title=method)
+        therapist.methods.append(method_object)
     session.add(therapist)
 session.commit()
 
