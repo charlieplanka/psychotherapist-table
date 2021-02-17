@@ -5,7 +5,7 @@
 
 ![Cover](cover.png)
   
-Данные на странице можно обновлять как через Django-админку, так и с помощью скрипта `therapists.py`.  
+Данные на странице (и в базе) можно обновлять с помощью скрипта `therapists.py`.  
 Пример запуска скрипта (Windows):
 ```
 py .\therapists.py --key keyyQ4y9FQVXyzLz3 --base appazv5uiri4NCfCn --table Psychotherapists
