@@ -3,7 +3,13 @@ from .models import Therapist, Method, AirtableRaw
 
 @admin.register(Therapist)
 class TherapistAdmin(admin.ModelAdmin):
-    pass
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
 
 @admin.register(Method)
 class MethodAdmin(admin.ModelAdmin):
