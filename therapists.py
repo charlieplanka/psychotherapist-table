@@ -21,9 +21,9 @@ association_table = sa.Table('psychotherapists_therapist_methods', Base.metadata
 class Therapist(Base):
     __tablename__ = 'psychotherapists_therapist'
     id = sa.Column(sa.Integer, primary_key=True)
+    airtable_id = sa.Column(sa.Text)
     name = sa.Column(sa.Text)
     photo = sa.Column(sa.Text)
-    photo_url = sa.Column(sa.Text) # убрать поле
     methods = relationship('Method',
                     secondary=association_table,
                     backref='therapists')
@@ -67,14 +67,19 @@ def add_method(method, therapist):
     therapist.methods.append(method_object)
 
 
+def is_therapist_exist(id):
+    return session.query(Therapist).filter(Therapist.airtable_id == id).first()
+
+
 table = get_airtable_data(AIRTABLE_URL, API_KEY).json()
 session = connect_to_db(DB_PATH)
 
 for therapist in table['records']:
     therapist_id, name, photo_url, methods = get_airtable_record_data(therapist)
-    photo_path = save_photo_to_media(photo_url, therapist_id)
-    therapist_object = Therapist(name=name, photo=photo_path)
-    for method in methods:
-        add_method(method, therapist_object)
-    session.add(therapist_object)
+    if not is_therapist_exist(therapist_id):
+        photo_path = save_photo_to_media(photo_url, therapist_id)
+        therapist_object = Therapist(name=name, photo=photo_path, airtable_id=therapist_id)
+        for method in methods:
+            add_method(method, therapist_object)
+        session.add(therapist_object)
 session.commit()
