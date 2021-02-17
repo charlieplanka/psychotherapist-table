@@ -21,7 +21,7 @@ association_table = sa.Table('psychotherapists_therapist_methods', Base.metadata
 class Therapist(Base):
     __tablename__ = 'psychotherapists_therapist'
     id = sa.Column(sa.Integer, primary_key=True)
-    airtable_id = sa.Column(sa.Text)
+    airtable_id = sa.Column(sa.Text)   # make primary key
     name = sa.Column(sa.Text)
     photo = sa.Column(sa.Text)
     methods = relationship('Method',
@@ -71,8 +71,18 @@ def is_therapist_exist(id):
     return session.query(Therapist).filter(Therapist.airtable_id == id).first()
 
 
+def remove_deleted_rows_from_db(table):
+    record_ids = [record['id'] for record in table['records']]
+    print(record_ids)
+    rows_to_delete = session.query(Therapist).filter(Therapist.airtable_id.notin_(record_ids)).all()
+    for row in rows_to_delete:
+        session.delete(row)
+
+
 table = get_airtable_data(AIRTABLE_URL, API_KEY).json()
 session = connect_to_db(DB_PATH)
+
+remove_deleted_rows_from_db(table)
 
 for therapist in table['records']:
     therapist_id, name, photo_url, methods = get_airtable_record_data(therapist)
