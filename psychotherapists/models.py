@@ -10,7 +10,8 @@ class Method(models.Model):
         return self.title
 
 class Therapist(models.Model):
-    airtable_id = models.CharField(max_length=200, blank=True, null=True)  # make primary key
+    airtable_id = models.CharField(max_length=200, blank=True, null=True)  # TODO: make primary key
+    airtable_modified = models.DateTimeField()
     name = models.CharField(max_length=200)
     methods = models.ManyToManyField(Method, related_name='therapists')
     photo = models.ImageField(upload_to='therapists', blank=True, null=True)
