@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Therapist, Method
+from .models import Therapist, Method, AirtableRaw
 
 @admin.register(Therapist)
 class TherapistAdmin(admin.ModelAdmin):
@@ -7,4 +7,9 @@ class TherapistAdmin(admin.ModelAdmin):
 
 @admin.register(Method)
 class MethodAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(AirtableRaw)
+class AirtableRawAdmin(admin.ModelAdmin):
     pass

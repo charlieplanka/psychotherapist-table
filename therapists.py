@@ -1,5 +1,7 @@
 import requests
 import os
+import datetime
+import json
 from dateutil.parser import parse
 import sqlalchemy as sa
 from sqlalchemy import create_engine
@@ -38,6 +40,13 @@ class Method(Base):
     title = sa.Column(sa.Text)
 
 
+class AirtableRaw(Base):
+    __tablename__ = 'psychotherapists_airtableraw'
+    id = sa.Column(sa.Integer, primary_key=True)
+    timestamp = sa.Column(sa.DateTime)
+    data = sa.Column(sa.Text)
+
+
 def connect_to_db(DB_PATH):
     engine = sa.create_engine(DB_PATH)
     Session = sessionmaker(engine)
@@ -47,6 +56,11 @@ def connect_to_db(DB_PATH):
 def get_airtable_data(url, api_key):
     headers = {'Authorization': 'Bearer ' + api_key}
     return requests.get(url,  headers=headers)
+
+
+def save_raw_airtable_data(session, table):
+    airtable_obj = AirtableRaw(timestamp=datetime.datetime.now(), data=json.dumps(table, ensure_ascii=False))
+    session.add(airtable_obj)
 
 
 def get_airtable_record_data(record):
@@ -82,7 +96,7 @@ def add_method(method, therapist):
     therapist.methods.append(method_object)
 
 
-def get_therapist_from_db(id):
+def get_therapist_from_db(session, id):
     return session.query(Therapist).filter(Therapist.airtable_id == id).first()
 
 
@@ -106,12 +120,13 @@ def create_therapist_object(therapist):
 table = get_airtable_data(AIRTABLE_URL, API_KEY).json()
 session = connect_to_db(DB_PATH)
 
+save_raw_airtable_data(session, table)
 remove_deleted_rows_from_db(table)
 
 for therapist in table['records']:
     therapist_id = get_airtable_record_id(therapist)
     modified = get_airtable_modified(therapist)
-    therapist_obj = get_therapist_from_db(therapist_id)    
+    therapist_obj = get_therapist_from_db(session, therapist_id)
 
     if not therapist_obj:
         create_therapist_object(therapist)

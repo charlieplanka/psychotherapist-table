@@ -18,3 +18,15 @@ class Therapist(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class AirtableRaw(models.Model):
+    timestamp = models.DateTimeField()
+    data = models.TextField()
+
+    class Meta:
+        verbose_name = 'airtable data'
+        verbose_name_plural = 'Airtable Raw Data'
+
+    def __str__(self):
+        return f'{self.timestamp.strftime("%m/%d/%Y, %H:%M:%S")} UTC'
