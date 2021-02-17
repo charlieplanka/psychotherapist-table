@@ -8,7 +8,9 @@ from sqlalchemy.orm import sessionmaker, relationship
 
 # safe read-only key
 API_KEY = 'keyyQ4y9FQVXyzLz3'
-AIRTABLE_URL = 'https://api.airtable.com/v0/appazv5uiri4NCfCn/Psychotherapists'
+API_URL = 'https://api.airtable.com/v0'
+BASE_ID = 'appazv5uiri4NCfCn'
+TABLE = 'Psychotherapists'
 DB_PATH = 'postgresql+psycopg2://meta:meta@/psycho'
 MEDIA_PATH = 'media'
 
@@ -147,14 +149,15 @@ def create_therapist_object(session, therapist):
 def parse_args():
     parser = argparse.ArgumentParser(description='Synchronize DB data with Airtable data.')
     parser.add_argument('-k', '--key', type=str, default=API_KEY, help='Airtable API key')
-    parser.add_argument('-u', '--url', type=str, default=AIRTABLE_URL, help='API URL of the Airtable table')
+    parser.add_argument('-b', '--base', type=str, default=BASE_ID, help='ID of the Airtable base')
+    parser.add_argument('-t', '--table', type=str, default=TABLE, help='Title of the Airtable table')
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
     API_KEY = args.key
-    AIRTABLE_URL = args.url
+    AIRTABLE_URL = f'{API_URL}/{args.base}/{args.table}'
 
     try:
         print('Retreiving data from Airtable..')
