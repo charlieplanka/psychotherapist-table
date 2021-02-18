@@ -22,9 +22,10 @@ urlpatterns = [
     path('', include(('psychotherapists.urls', 'therapists'))),
 ]
 
-if settings.DEBUG:
-    import debug_toolbar
+# debug toolbar
+# if settings.DEBUG:
+#     import debug_toolbar
 
-    urlpatterns = [
-        path('__debug__/', include(debug_toolbar.urls)),
-    ] + urlpatterns
+#     urlpatterns = [
+#         path('__debug__/', include(debug_toolbar.urls)),
+#     ] + urlpatterns
