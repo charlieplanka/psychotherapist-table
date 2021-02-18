@@ -123,7 +123,7 @@ python manage.py migrate
 
 8. Запустите скрипт (можно использовать параметры по умолчанию — тогда данные будут выгружаться из [тестовой таблицы](https://airtable.com/tbl3Le5kAVZOUKtZr/viw0SdXxT1MNPlOXl?blocks=hide)):
 ```
-py .\therapists.py --key keyyQ4y9FQVXyzLz3 --base appazv5uiri4NCfCn --table Psychotherapists
+python3 ./therapists.py --key keyyQ4y9FQVXyzLz3 --base appazv5uiri4NCfCn --table Psychotherapists
 ```
 
 9. Запустите сервер (по умолчанию поднимется на 8000 порту):
