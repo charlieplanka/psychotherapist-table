@@ -13,7 +13,9 @@ py .\therapists.py --key keyyQ4y9FQVXyzLz3 --base appazv5uiri4NCfCn --table Psyc
 `--key` — API-токен для доступа к таблице Airtable (можно получить в [профиле Airtable](https://airtable.com/account))  
 `--base` — ID рабочего окружение Airtable (можно посмотреть в [документации к API](https://airtable.com/api) конкретного окружения)  
 `--table` — название таблицы, из которой сохраняем данные  
-  
+
+Все параметры опциональны. Если их не указывать, будет использоваться тестовая таблица.
+
 Предполагается, что таблица Airtable будет иметь колонки со следующими названиями ([пример таблицы](https://airtable.com/shrxKnUUdXeP619HB)):
 * Имя
 * Фотография
