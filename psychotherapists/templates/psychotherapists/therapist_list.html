@@ -6,37 +6,24 @@
 {% endblock %}
 
 {% block content %}
-{{ therapists | json_script:"therapists" }}
-
-<div id="app">
-    <div class="d-flex align-items-center flex-column mt-4">
-        <h3>[[ title ]]</h3>
-        <div v-for="therapist in therapists" :key="therapist.id" class="d-flex my-3 person flex-wrap">
-            <img v-bind:src="therapist.photo" height="380" width="230" class="mx-3">
+<div class="d-flex align-items-center flex-column mt-4">
+    <h3>Психотерапевты</h3>
+    {% for therapist in therapists %}
+        <div class="d-flex my-3 person flex-wrap">
+            <img src="{{ therapist.photo }}" height="380" width="230" class="mx-3">
             <div class="data">
-                <p class="name">[[ therapist.name ]]</p>
-                <h6>[[ method_title ]]</h6>
+                <p class="name">{{ therapist.name }}</p>
+                <h6>Методы:</h6>
                 <div class="d-flex flex-row flex-wrap">
-                    <span v-for="method in therapist.methods" :key="method.id" class="method">
-                        [[ method.title ]]
-                    </span>
+                    {% for method in therapist.methods %}
+                        <span class="method">
+                            {{ method.title }}
+                        </span>
+                    {% endfor %}
                 </div>
             </div>
         </div>
-    </div>
+    {% endfor %}
 </div>
 
-<script>
-    let therapists = JSON.parse(document.getElementById("therapists").textContent);
-
-    let app = new Vue({
-        el: "#app",
-        delimiters: ["[[", "]]"],
-        data: {
-            title: "Психотерапевты",
-            method_title: "Методы:",
-            therapists,
-        },
-    });
-</script>
 {% endblock %}
