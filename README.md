@@ -13,8 +13,10 @@ py .\therapists.py --key keyyQ4y9FQVXyzLz3 --base appazv5uiri4NCfCn --table Psyc
 `--key` — API-токен для доступа к таблице Airtable (можно получить в [профиле Airtable](https://airtable.com/account))  
 `--base` — ID рабочего окружение Airtable (можно посмотреть в [документации к API](https://airtable.com/api) конкретного окружения)  
 `--table` — название таблицы, из которой сохраняем данные  
-  
-Предполагается, что таблица Airtable будет иметь колонки со следующими названиями ([пример таблицы](https://airtable.com/tbl3Le5kAVZOUKtZr/viw0SdXxT1MNPlOXl?blocks=hide)):
+
+Все параметры опциональны. Если их не указывать, будет использоваться тестовая таблица.
+
+Предполагается, что таблица Airtable будет иметь колонки со следующими названиями ([пример таблицы](https://airtable.com/shrxKnUUdXeP619HB)):
 * Имя
 * Фотография
 * Методы — список методов, с которыми работает терапевт
@@ -71,7 +73,7 @@ CREATE DATABASE psycho OWNER meta;
 python manage.py migrate
 ```
 
-8. Запустите скрипт (можно использовать параметры по умолчанию — тогда данные будут выгружаться из [тестовой таблицы](https://airtable.com/tbl3Le5kAVZOUKtZr/viw0SdXxT1MNPlOXl?blocks=hide)):
+8. Запустите скрипт (можно использовать параметры по умолчанию — тогда данные будут выгружаться из [тестовой таблицы](https://airtable.com/shrxKnUUdXeP619HB)):
 ```
 py .\therapists.py --key keyyQ4y9FQVXyzLz3 --base appazv5uiri4NCfCn --table Psychotherapists
 ```
@@ -121,7 +123,7 @@ CREATE DATABASE psycho OWNER meta;
 python manage.py migrate
 ```
 
-8. Запустите скрипт (можно использовать параметры по умолчанию — тогда данные будут выгружаться из [тестовой таблицы](https://airtable.com/tbl3Le5kAVZOUKtZr/viw0SdXxT1MNPlOXl?blocks=hide)):
+8. Запустите скрипт (можно использовать параметры по умолчанию — тогда данные будут выгружаться из [тестовой таблицы](https://airtable.com/shrxKnUUdXeP619HB):
 ```
 python3 ./therapists.py --key keyyQ4y9FQVXyzLz3 --base appazv5uiri4NCfCn --table Psychotherapists
 ```
