@@ -75,7 +75,7 @@ CREATE DATABASE psycho OWNER meta;
 python manage.py migrate
 ```
 
-8. Запустите команду для обновления данных (можно использовать параметры по умолчанию — тогда данные будут выгружаться из [таблицы по умолчанию](https://airtable.com/shrxKnUUdXeP619HB)):
+8. Запустите команду для обновления данных (можно запустить без параметров — тогда данные будут выгружаться из [таблицы по умолчанию](https://airtable.com/shrxKnUUdXeP619HB)):
 ```
 python manage.py airtablesync --key keyyQ4y9FQVXyzLz3 --base appazv5uiri4NCfCn --table Psychotherapists
 ```
@@ -125,7 +125,7 @@ CREATE DATABASE psycho OWNER meta;
 python manage.py migrate
 ```
 
-8. Запустите команду для обновления данных (можно использовать параметры по умолчанию — тогда данные будут выгружаться из [таблицы по умолчанию](https://airtable.com/shrxKnUUdXeP619HB):
+8. Запустите команду для обновления данных (можно запустить без параметров — тогда данные будут выгружаться из [таблицы по умолчанию](https://airtable.com/shrxKnUUdXeP619HB):
 ```
 python manage.py airtablesync --key keyyQ4y9FQVXyzLz3 --base appazv5uiri4NCfCn --table Psychotherapists
 ```
