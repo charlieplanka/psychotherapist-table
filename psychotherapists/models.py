@@ -21,7 +21,7 @@ class Therapist(models.Model):
 
 
 class AirtableRaw(models.Model):
-    timestamp = models.DateTimeField()
+    timestamp = models.DateTimeField(auto_now_add=True)
     data = models.TextField()
 
     class Meta:
