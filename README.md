@@ -1,7 +1,7 @@
 # Приложение с данными психотерапевтов
 
 Страница с карточками психотерапевтов.  
-Стек: Django + Bootstrap + PostgreSQL.
+Стек: **Django** + **Bootstrap** + **PostgreSQL**.
 
 ![Cover](cover.png)
   
