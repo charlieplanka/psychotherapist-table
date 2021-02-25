@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand
+from django.core.files.base import ContentFile
 from psychotherapists.models import Therapist, Method, AirtableRaw
 from requests.exceptions import HTTPError
 from meta.settings import MEDIA_ROOT
 import requests
-import datetime
 import json
 import os.path
 from dateutil.parser import parse
@@ -78,6 +78,7 @@ def update_therapist_db_data(table):
             elif therapist_obj.airtable_modified != last_modified_datetime:
                 therapist_obj.delete()
                 create_therapist_object(therapist)
+        
         except EmptyRowError:
             continue
 
@@ -87,8 +88,6 @@ def remove_deleted_rows_from_db(table):
     rows_to_delete = Therapist.objects.exclude(airtable_id__in=record_ids)
     for row in rows_to_delete:
         row.delete()
-        photo_path = os.path.join(MEDIA_ROOT, row.photo.url)
-        os.remove(photo_path)
 
 
 def get_airtable_record_id(record):
@@ -109,11 +108,17 @@ def get_therapist_from_db(id):
 
 def create_therapist_object(therapist):
     therapist_id, name, photo_url, methods, modified = get_airtable_record_data(therapist)
-    photo_path = save_photo_to_media(photo_url, therapist_id) # TODO: change to autouplodaing
-    therapist_obj = Therapist.objects.create(name=name, photo=photo_path, airtable_id=therapist_id, airtable_modified=modified)
+    therapist_obj = Therapist.objects.create(name=name, airtable_id=therapist_id, airtable_modified=modified)
+
+    photo = get_photo_from_url(photo_url)
+    photo_title = f'{therapist_id}.jpg'
+    therapist_obj.photo.save(photo_title, photo)
+
     therapist_obj.save()
+
     for method in methods:
         add_method(method, therapist_obj)
+        
     therapist_obj.save()
 
 
@@ -127,12 +132,9 @@ def get_airtable_record_data(record):
     return record_id, name, photo_url, methods, modified
 
 
-def save_photo_to_media(url, person_id):
+def get_photo_from_url(url):
     photo = requests.get(url)
-    photo_path = os.path.join(MEDIA_ROOT, 'therapists', f'{person_id}.jpg')
-    with open(photo_path, 'wb') as f:
-        f.write(photo.content)
-    return photo_path
+    return ContentFile(photo.content)
 
 
 def add_method(method, therapist):

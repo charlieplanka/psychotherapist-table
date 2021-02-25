@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     'psychotherapists',
 
+    'django_cleanup',
     # 'debug_toolbar',
 ]
 
